@@ -3,7 +3,7 @@ PYAPNS gem
 
 pyapns is an universal Apple Push Notification Service (APNS) provider.
 
-This gem simply extracts the code under [https://github.com/samuraisam/pyapns/tree/master/ruby-client/pyapns](https://github.com/samuraisam/pyapns/tree/master/ruby-client/pyapns) in order to make instaling it as a gem grom GitHub possible ([related issue here](https://github.com/samuraisam/pyapns/pull/23#issuecomment-5367855)).
+This gem simply extracts the code under [https://github.com/samuraisam/pyapns/tree/master/ruby-client/pyapns](https://github.com/samuraisam/pyapns/tree/master/ruby-client/pyapns) in order to make instaling it as a gem from GitHub possible ([related issue here](https://github.com/samuraisam/pyapns/pull/23#issuecomment-5367855)).
 
 
 Installation
