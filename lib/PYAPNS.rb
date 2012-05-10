@@ -203,14 +203,20 @@ module PYAPNS
     def perform_safe_call(method, splat, *args, &block)
       raise PYAPNS::NotConfigured.new unless configured?
 
-      (1..@max_attempts).each do |attempt|
-        begin
-          perform_call method, splat, *args, &block
-        rescue PYAPNS::UnknownAppID => fault
-          raise fault if !configured? || @configuration.nil?
-          raise fault if attempt == @max_attempts
+      attempts = 0
 
+      begin
+          perform_call method, splat, *args, &block
+      rescue PYAPNS::UnknownAppID => fault
+        raise fault if !configured? || @configuration.nil?
+
+        attempts += 1
+
+        if attempts < @max_attempts
           reconfigure && sleep(0.5)
+          retry
+        else
+          raise fault
         end
       end
 
