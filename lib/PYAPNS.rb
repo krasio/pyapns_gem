@@ -219,8 +219,6 @@ module PYAPNS
           raise fault
         end
       end
-
-      return nil
     end
 
     def perform_call(method, splat, *args, &block)
