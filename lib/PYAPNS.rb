@@ -132,6 +132,7 @@ module PYAPNS
 
     def initialize
       @configured = false
+      @configuration = nil
     end
 
     def provision(*args, &block)
@@ -149,12 +150,75 @@ module PYAPNS
                         note
                       end
                     end
-        perform_call :notify, splat, *kwargs, &block
+        perform_safe_call :notify, splat, *kwargs, &block
       end
     end
 
     def feedback(*args, &block)
-      perform_call :feedback, args, :app_id, &block
+      perform_safe_call :feedback, args, :app_id, &block
+    end
+
+    def configured?
+      return @configured
+    end
+
+    def configure(hash={})
+      if configured?
+        return self
+      end
+      h = {}
+      hash.each { |k,v| h[k.to_s.downcase] = v }
+      @host = h['host'] || "localhost"
+      @port = h['port'] || 7077
+      @path = h['path'] || '/'
+      @timeout = h['timeout'] || 15
+      @max_attempts = h['max_attempts'] || 4
+      @client = XMLRPC::Client.new3(
+        :host => @host,
+        :port => @port,
+        :timeout => @timeout,
+        :path => @path)
+
+      @configured = true
+      @configuration = h
+
+      if not h['initial'].nil?
+        h['initial'].each do |initial|
+          provision(:app_id => initial[:app_id],
+                    :cert => initial[:cert],
+                    :env => initial[:env],
+                    :timeout => initial[:timeout] || 15)
+        end
+      end
+      self
+    end
+    
+    protected
+    
+    def reconfigure
+      @configured = false
+      configure(@configuration)
+    end
+    
+    def perform_safe_call(method, splat, *args, &block)
+      raise PYAPNS::NotConfigured.new unless configured?
+
+      attempts = 0
+
+      begin
+          perform_call method, splat, *args, &block
+      rescue PYAPNS::UnknownAppID => fault
+        raise fault if !configured? || @configuration.nil?
+
+        attempts += 1
+
+        if attempts < @max_attempts
+          reconfigure && sleep(0.5)
+          retry
+        else
+          raise fault
+        end
+      end
     end
 
     def perform_call(method, splat, *args, &block)
@@ -201,37 +265,6 @@ module PYAPNS
           raise fault
         end
       end
-    end
-
-    def configured?
-      return @configured
-    end
-
-    def configure(hash={})
-      if configured?
-        return self
-      end
-      h = {}
-      hash.each { |k,v| h[k.to_s.downcase] = v }
-      @host = h['host'] || "localhost"
-      @port = h['port'] || 7077
-      @path = h['path'] || '/'
-      @timeout = h['timeout'] || 15
-      @client = XMLRPC::Client.new3(
-        :host => @host, 
-        :port => @port, 
-        :timeout => @timeout, 
-        :path => @path)
-      if not h['initial'].nil?
-        h['initial'].each do |initial|
-          provision(:app_id => initial[:app_id], 
-                    :cert => initial[:cert], 
-                    :env => initial[:env], 
-                    :timeout => initial[:timeout] || 15)
-        end
-      end
-      @configured = true
-      self
     end
   end
 
