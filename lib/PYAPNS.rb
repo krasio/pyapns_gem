@@ -276,6 +276,9 @@ module PYAPNS
   ##   use PYAPNS::ClientConfiguration(
   ##        :host => 'http://localhost/' 
   ##        :port => 7077,
+  ##        :path => '/',
+  ##        :timeout => 15,
+  ##        :max_attempts => 4,
   ##        :initial => [{
   ##            :app_id => 'myapp',
   ##            :cert => '/home/myuser/apps/myapp/cert.pem',
@@ -285,9 +288,12 @@ module PYAPNS
   ##
   ## Where the configuration variables are defined:
   ##
-  ##    :host     String      the host where the server can be found
-  ##    :port     Number      the port to which the client should connect
-  ##    :initial  Array       OPTIONAL - an array of INITIAL hashes
+  ##    :host          String      the host where the server can be found
+  ##    :port          Number      the port to which the client should connect
+  ##    :path          String      defaults to '/'
+  ##    :timeout       Number      defaults to 15
+  ##    :max_attempts  Number      maximum number of attempts if server is gone (like if restarteda after client was configured), defaults to 4
+  ##    :initial       Array       OPTIONAL - an array of INITIAL hashes
   ##
   ##    INITIAL HASHES:
   ##
