@@ -1,6 +1,6 @@
 require 'singleton'
 require 'xmlrpc/client'
-require "PYAPNS/version"
+require "pyapns/version"
 
 XMLRPC::Config.module_eval {
   remove_const(:ENABLE_NIL_PARSER)     # so that we're not warned about reassigning to a constant
@@ -140,16 +140,12 @@ module PYAPNS
 
     def notify(*args, &block)
       kwargs = [:app_id, :tokens, :notifications]
-      get_args(args, *kwargs) do |splat|
-        splat[2] = (splat[2].class == Array ? 
-                    splat[2] : [splat[2]]).map do |note|
-                      if note.class != PYAPNS::Notification
-                        PYAPNS::Notification.encode note
-                      else
-                        note
-                      end
-                    end
-        perform_call :notify, splat, *kwargs, &block
+
+      get_args(args, *kwargs) do |app, tokens, notes|
+        tokens = [*tokens]
+        notes = [notes].flatten.map {|note| note.is_a?(PYAPNS::Notification) ? note : PYAPNS::Notification.encode(note)}
+
+        perform_call :notify, [app, tokens, notes], *kwargs, &block
       end
     end
 
@@ -182,7 +178,7 @@ module PYAPNS
       if (splat.find_all { |l| not l.nil? }).length == args.length
         block.call(splat)
       else
-        raise PYAPNS::InvalidArguments.new "Invalid args supplied #{args}"
+        raise PYAPNS::InvalidArguments.new "Invalid args supplied! Required params are #{args.join(', ')}."
       end
     end
 
@@ -218,9 +214,9 @@ module PYAPNS
       @path = h['path'] || '/'
       @timeout = h['timeout'] || 15
       @client = XMLRPC::Client.new3(
-        :host => @host, 
-        :port => @port, 
-        :timeout => @timeout, 
+        :host => @host,
+        :port => @port,
+        :timeout => @timeout,
         :path => @path)
       if not h['initial'].nil?
         h['initial'].each do |initial|
