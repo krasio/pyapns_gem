@@ -1,4 +1,4 @@
-PYAPNS gem
+pyapns gem
 =====
 
 pyapns is an universal Apple Push Notification Service (APNS) provider.
@@ -11,7 +11,7 @@ Installation
 
 Add it to your Gemfile
 
-```gem 'PYAPNS', :git => 'git://github.com/krasio/pyapns_gem'```
+```gem 'pyapns', :git => 'git://github.com/krasio/pyapns_gem'```
 
 From your project's root run
 
