@@ -46,6 +46,10 @@ module PYAPNS
           subject.instance_variable_get('@timeout').should == 15
         end
 
+        it "for max_attempts is 4" do
+          subject.instance_variable_get('@max_attempts').should == 4
+        end
+
         it "sets XML-RPC client with provided host, path, port and timeout" do
           subject.instance_variable_get('@client').should == xmlrpc_client
         end
@@ -60,6 +64,7 @@ module PYAPNS
             'port' => 9999,
             'path' => '/some/path',
             'timeout' => 30,
+            'max_attempts' => 5,
             'initial' => [
               {
                 :app_id => 'myapp',
@@ -103,6 +108,10 @@ module PYAPNS
 
         it "timeout is set to value of 'timeout' key in options hash" do
           subject.instance_variable_get('@timeout').should == 30
+        end
+
+        it "maximum number of attempts is set to value of 'max_attempts' key in options hash" do
+          subject.instance_variable_get('@max_attempts').should == 5
         end
 
         it "sets XML-RPC client with provided host, path, port and timeout" do
